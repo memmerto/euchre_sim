@@ -42,13 +42,14 @@ class Game:
 		team_one_tricks = 0
 		team_two_tricks = 0
 
-		# order players based on position values (0 for dealer)
+		# order players based on position values (3 for dealer)
 		self.__players = sorted(self.__players, key=lambda x: x.position)
-		dealer = self.__players[0]
+		dealer = self.__players[3]
 
 		# deal
 		self.deal_hand()
 		self.print_hand()
+		print "top card", self.top_card
 
 		# call trump
 		for p in self.__players:
@@ -57,10 +58,7 @@ class Game:
 				dealer.hand.remove(dealer.exchange_card(self.top_card))
 				dealer.receive_card(self.top_card)
 				if call_result == "alone":
-					filter(lambda x: x.team_num == p.team_num and
-									 x.position != p.position,
-									 self.__players)[0].active = False
-				print p.name
+					self.teammate_for(p).active = False
 				break
 
 		self.print_hand()
@@ -88,10 +86,18 @@ class Game:
 		print "GAME OVER!"
 
 	def print_hand(self):
+		""" Print hand for each player"""
 		print "----------------------------------------------"
 		for p in self.__players:
-			print p.position, p.name, p.hand
-		print "top card", self.top_card
+			if p.active:
+				print p.position, p.name, p.hand
+			else:
+				print p.position, p.name, "*** asleep ***"
+
+	def teammate_for(self, player):
+		return filter(lambda teammate: teammate.team_num == player.team_num and
+									   teammate.position != player.position,
+									   self.__players)[0]
 
 class Player:
 
@@ -109,10 +115,10 @@ class Player:
 		return False
 
 	def call(self, top_card):
-		""" Call a card
+		""" Call trump
 
 		"""
-		return True
+		return 'alone'
 
 	def exchange_card(self, top_card):
 		""" Choose card
