@@ -18,15 +18,14 @@ class Game:
 		self.team_two_score = 0
 		self.__deck = None
 		self.top_card = None
+		self.trump = None
 
 
 	def deal_hand(self):
 		self.__deck = [val + suit for val in
 						['9','T','J','Q','K','A'] for suit in ['s', 'h', 'd', 'c']]
 		shuffle(self.__deck)
-
-		# order players based on position values (0 for dealer)
-		self.__players = sorted(self.__players, key=lambda x: x.position)
+		self.trump = None
 
 		# euchre style dealing, for true authenticity
 		for p in self.__players:
@@ -37,25 +36,49 @@ class Game:
 			for _ in xrange(5-len(p.hand)):
 				p.receive_card(self.__deck.pop())
 
-#		for p in self.__players:
-#			print p.name, p.hand
-
 		self.top_card = self.__deck.pop()
 
-#		print "top card", self.top_card
-
 	def play_hand(self):
-		# deal
-		deal_hand()
+		team_one_tricks = 0
+		team_two_tricks = 0
 
-		# call
+		# order players based on position values (0 for dealer)
+		self.__players = sorted(self.__players, key=lambda x: x.position)
+		dealer = self.__players[0]
+
+		# deal
+		self.deal_hand()
+		self.print_hand()
+
+		# call trump
+		for p in self.__players:
+			call_result = p.call(self.top_card)
+			if call_result != False:
+				dealer.hand.remove(dealer.exchange_card(self.top_card))
+				dealer.receive_card(self.top_card)
+				if call_result == "alone":
+					filter(lambda x: x.team_num == p.team_num and
+									 x.position != p.position,
+									 self.__players)[0].active = False
+				print p.name
+				break
+
+		self.print_hand()
+
+		for p in self.__players:
+			pass
+
 
 		# play tricks
 
 		# score
 
 		# rotate dealer (rotate positions)
-		for p in self.
+		for p in self.__players:
+			if p.position == 0:
+				p.position = 3
+			else:
+				p.position -= 1
 
 
 	def play_game(self):
@@ -64,7 +87,11 @@ class Game:
 
 		print "GAME OVER!"
 
-
+	def print_hand(self):
+		print "----------------------------------------------"
+		for p in self.__players:
+			print p.position, p.name, p.hand
+		print "top card", self.top_card
 
 class Player:
 
@@ -76,10 +103,22 @@ class Player:
 		self.active = True # set to False to "go it alone"/"put partner to sleep"
 
 	def action(self):
-		pass
+		""" Play a card in trick
 
-	def call(self):
-		pass
+		"""
+		return False
+
+	def call(self, top_card):
+		""" Call a card
+
+		"""
+		return True
+
+	def exchange_card(self, top_card):
+		""" Choose card
+
+		"""
+		return self.hand[0]
 
 	def receive_card(self, card):
 		self.hand.append(card)
@@ -92,4 +131,4 @@ p3 = Player("Paul")
 p4 = Player("Erica/Sarah")
 
 g = Game([p1, p2, p3, p4])
-g.deal_hand()
+g.play_hand()
