@@ -1,6 +1,9 @@
 from random import shuffle, randrange
 #import matplotlib.pyplot as plt
 
+SUITS = ['s', 'h', 'd', 'c']
+VALUES = ['9','T','J','Q','K','A']
+
 class Game:
 
 	def __init__(self, players):
@@ -20,10 +23,42 @@ class Game:
 		self.top_card = None
 		self.trump = None
 
+	def play_game(self):
+		while (self.team_one_score < 10 and self.team_two_score < 10):
+			play_hand()
+
+		print "GAME OVER!"
+
+	def play_hand(self):
+		team_one_tricks = 0
+		team_two_tricks = 0
+
+		# order players based on position values (3 for dealer)
+		self.__players = sorted(self.__players, key=lambda x: x.position)
+
+		# deal
+		self.deal_hand()
+		self.print_hand()
+		print "top card", self.top_card
+
+		# call trump
+		self.call_trump()
+		self.print_hand()
+
+		# play trick
+
+		# score
+
+		# rotate dealer (rotate positions)
+		for p in self.__players:
+			if p.position == 0:
+				p.position = 3
+			else:
+				p.position -= 1
 
 	def deal_hand(self):
 		self.__deck = [val + suit for val in
-						['9','T','J','Q','K','A'] for suit in ['s', 'h', 'd', 'c']]
+						VALUES for suit in SUITS]
 		shuffle(self.__deck)
 		self.trump = None
 
@@ -38,56 +73,41 @@ class Game:
 
 		self.top_card = self.__deck.pop()
 
-	def play_hand(self):
-		team_one_tricks = 0
-		team_two_tricks = 0
-
-		# order players based on position values (3 for dealer)
-		self.__players = sorted(self.__players, key=lambda x: x.position)
+	def call_trump(self):
 		dealer = self.__players[3]
 
-		# deal
-		self.deal_hand()
-		self.print_hand()
-		print "top card", self.top_card
-
-		# call trump
 		for p in self.__players:
 			call_result = p.call(self.top_card)
 			if call_result != False:
-				dealer.hand.remove(dealer.exchange_card(self.top_card))
 				dealer.receive_card(self.top_card)
+				discard = dealer.discard()
+
+				# TODO: check that an appropriate card is discarded
+				dealer.hand.remove(discard)
+				
+				self.trump = self.top_card[1]
 				if call_result == "alone":
 					self.teammate_for(p).active = False
-				break
+				return
 
 		self.print_hand()
 
 		for p in self.__players:
-			pass
+			call_result = p.call(None)
 
-
-		# play tricks
-
-		# score
-
-		# rotate dealer (rotate positions)
-		for p in self.__players:
-			if p.position == 0:
-				p.position = 3
-			else:
-				p.position -= 1
-
-
-	def play_game(self):
-		while (self.team_one_score < 10 and self.team_two_score < 10):
-			play_hand()
-
-		print "GAME OVER!"
+			# make sure dealer is screwed
+			if call_result not in SUITS and p.position == 3:
+				raise Exception
+			# illegal call
+			if call_result == self.top_card[1]:
+				raise Exception
+			if call_result in SUITS:
+				self.trump = call_result
+				return
 
 	def print_hand(self):
-		""" Print hand for each player"""
-		print "----------------------------------------------"
+		""" Print hand for each player """
+		print "------------------- Trump:", self.trump, "---------------"
 		for p in self.__players:
 			if p.active:
 				print p.position, p.name, p.hand
@@ -115,13 +135,23 @@ class Player:
 		return False
 
 	def call(self, top_card):
-		""" Call trump
+		""" Call trump or pass
+
+		If top_card is specified return:
+			True - call the top_card suit as trump
+			"alone" - call that suit trump, and put partner to sleep / go alone
+			False - pass
+
+		If top_card is None, return:
+			's', 'c', 'h', 'd' - call specified suit as trump
+			False - pass
+			*** note if player is dealer (position == 3), player can't pass
 
 		"""
-		return 'alone'
+		return True
 
-	def exchange_card(self, top_card):
-		""" Choose card
+	def discard(self):
+		""" Choose card to discard after picking up
 
 		"""
 		return self.hand[0]
