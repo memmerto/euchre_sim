@@ -67,8 +67,7 @@ class Game:
 				p.position -= 1
 
 	def deal_hand(self):
-		self.__deck = [val + suit for val in
-						VALUES for suit in SUITS]
+		self.__deck = [val + suit for val in VALUES for suit in SUITS]
 		shuffle(self.__deck)
 		self.trump = None
 
