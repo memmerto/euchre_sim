@@ -55,24 +55,33 @@ class Game:
 		for _ in xrange(5):
 			action_pos = start_pos
 			trick = []
+
 			for _ in xrange(4):
 				player = self._players[action_pos % 4]
 				if player.active:
-					player.action(trick)
-				
+					card = player.action(trick)
+					if len(trick) > 0 and player.has_suit(trick[0][1]) and card[1] != trick[0][1]:
+						raise Exception("Must play the lead suit if you've got it")
+					trick.append(card)
+					player.hand.remove(card)
 				action_pos += 1
+
+			winning_card = util.best_card(trick, self._trump, trick[0])
 			start_pos = 0
 
-
 		# score
-		# TODO
-		self._team_one_tricks = 0
-		self._team_two_tricks = 0
 		self._team_one_score = 999
 		self._team_two_score = 999
 
-		# rotate dealer (rotate positions)
+		# reset
 		for p in self._players:
+			p.hand = []
+			self._team_one_tricks = 0
+			self._team_two_tricks = 0
+			self._trump = None
+			self._top_card = None
+
+			# rotate dealer (rotate positions)
 			if p.position == 0:
 				p.position = 3
 			else:
@@ -81,7 +90,6 @@ class Game:
 	def deal_hand(self):
 		self.__deck = [val + suit for val in VALUES for suit in SUITS]
 		shuffle(self.__deck)
-		self._trump = None
 
 		# euchre style dealing, for true authenticity
 		for p in self._players:
@@ -141,6 +149,7 @@ class Game:
 				print p.position, p.name, "*** asleep ***"
 
 	def _teammate_for(self, player):
+		""" Return teammate of player """
 		return filter(lambda teammate: teammate.team_num == player.team_num and
 									   teammate.position != player.position,
 									   self._players)[0]
@@ -184,10 +193,18 @@ class Player:
 	def action(self, trick):
 		""" Play a card in trick
 
-		trick -- list of cards played in order
+		trick -- list of cards played in order, trick[0] is lead card
 
 		"""
-		return False
+		card_to_play = None
+		for card in self.hand:
+			if not trick:
+				card_to_play = self.hand[0]
+			elif trick[0][1] == card[1]:
+				card_to_play = card
+		if not card_to_play:
+			card_to_play = self.hand[0]
+		return card_to_play
 
 	def call(self, top_card):
 		""" Call trump or pass
@@ -228,7 +245,12 @@ class Player:
 		return
 
 	def receive_card(self, card):
+		""" Receive card into player's hand """
 		self.hand.append(card)
+
+	def has_suit(self, suit):
+		""" Return True if player has specified suit in hand, otherwise false """
+		return suit in [card[1] for card in self.hand]
 
 
 
