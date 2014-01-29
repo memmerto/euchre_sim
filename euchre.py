@@ -14,6 +14,7 @@ class Game:
 		self.__players = players
 		position = 0
 		for p in self.__players:
+			p.game = self
 			p.position = position
 			if p.position % 2 == 0:
 				p.team_num = 1
@@ -23,6 +24,8 @@ class Game:
 
 		self.team_one_score = 0
 		self.team_two_score = 0
+		self.team_one_tricks = 0
+		self.team_two_tricks = 0
 		self.__deck = None
 		self.top_card = None
 		self.trump = None
@@ -34,9 +37,6 @@ class Game:
 		print "GAME OVER!"
 
 	def play_hand(self):
-		team_one_tricks = 0
-		team_two_tricks = 0
-
 		# order players based on position values (3 for dealer)
 		self.__players = sorted(self.__players, key=lambda x: x.position)
 
@@ -53,11 +53,18 @@ class Game:
 		start_pos = 0
 		for _ in xrange(5):
 			action_pos = start_pos
-			for i in xrange(4)
-				self.__players[action_pos].action()
+			trick = []
+			for _ in xrange(4):
+				player = self.__players[action_pos % 4]
+				if player.active:
+					player.action(trick)
+				
+				action_pos += 1
+			start_pos = 0
 
 
 		# score
+		# TODO
 
 		# rotate dealer (rotate positions)
 		for p in self.__players:
@@ -96,7 +103,11 @@ class Game:
 				
 				self.trump = self.top_card[1]
 				if call_result == "alone":
-					self.teammate_for(p).active = False
+					self.__teammate_for(p).active = False
+
+				# tell players who called
+				for pl in self.__players:
+					pl.end_call(p.position, self.trump)
 				return
 			print p.name, ":", self.trump
 
@@ -111,6 +122,8 @@ class Game:
 				raise Exception("Can't call the face up card after it's flipped")
 			if call_result in SUITS:
 				self.trump = call_result
+				for pl in self.__players:
+					pl.end_call(p.position, self.trump)
 				return
 
 	def print_hand(self):
@@ -122,10 +135,12 @@ class Game:
 			else:
 				print p.position, p.name, "*** asleep ***"
 
-	def teammate_for(self, player):
+	def __teammate_for(self, player):
 		return filter(lambda teammate: teammate.team_num == player.team_num and
 									   teammate.position != player.position,
 									   self.__players)[0]
+
+	def 
 
 class Player:
 
@@ -135,11 +150,15 @@ class Player:
 		self.hand = []
 		self.position = None
 		self.active = True # set to False to "go it alone"/"put partner to sleep"
+		self.game = None
 
-	def action(self):
+	def action(self, trick):
 		""" Play a card in trick
 
+		trick -- list of cards played in order
+
 		"""
+		print self.name, "action", self.game.top_card
 		return False
 
 	def call(self, top_card):
@@ -157,15 +176,29 @@ class Player:
 
 		"""
 		if top_card:
-			return True
-		else:
 			return False
+		else:
+			if self.position == 2:
+				return 's'
 
 	def discard(self):
 		""" Choose card to discard after picking up
 
 		"""
 		return self.hand[0]
+
+	def end_call(self, caller_position, trump):
+		""" Communicate result of calling to player
+
+		"""
+		print self.name, caller_position, trump
+		pass
+
+	def end_trick(self):
+		""" Communicate result of trick to player
+
+		"""
+		pass
 
 	def receive_card(self, card):
 		self.hand.append(card)
