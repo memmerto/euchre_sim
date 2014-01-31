@@ -1,10 +1,8 @@
 from random import shuffle, randrange
-import util
+import utils
 
 SUITS = ['s', 'h', 'd', 'c']
 VALUES = ['9','T','J','Q','K','A']
-
-VALUE_MAP = {'9': 0, 'T': 1, 'J': 2, 'Q': 3, 'K': 4, 'A': 5}
 
 class Game:
 
@@ -43,12 +41,12 @@ class Game:
 
 		# deal
 		self.deal_hand()
-		#self.print_hand()
-		#print "top card", self._top_card
 
 		# call trump
 		self.call_trump()
 		self.print_hand()
+		print "top card", self._top_card
+
 
 		# play tricks
 		start_pos = 0
@@ -69,7 +67,7 @@ class Game:
 					player.hand.remove(card)
 				action_pos += 1
 
-			winning_card = util.best_card(trick, self._trump, trick[0])
+			winning_card = utils.best_card(trick, self._trump, trick[0])
 			winning_player = self._players[(trick.index(winning_card) + start_pos) % 4]
 			start_pos = winning_player.position
 			self._tricks_score[winning_player.team_num] += 1
@@ -198,83 +196,3 @@ class Game:
 	@property
 	def game_score(self):
 		return self._game_score
-
-
-class Player:
-
-	def __init__(self, name):
-		self.name = name
-		self.team_num = None
-		self.hand = []
-		self.position = None
-		self.active = True # set to False to "go it alone"/"put partner to sleep"
-		self.game = None
-
-	def action(self, trick):
-		""" Play a card in trick
-
-		trick -- list of cards played in order, trick[0] is lead card
-
-		"""
-		card_to_play = None
-		for card in self.hand:
-			if not trick:
-				card_to_play = self.hand[0]
-			elif trick[0][1] == card[1]:
-				card_to_play = card
-		if not card_to_play:
-			card_to_play = self.hand[0]
-		return card_to_play
-
-	def call(self, top_card):
-		""" Call trump or pass
-
-		If top_card is specified return:
-			True - call the top_card suit as trump
-			"alone" - call that suit trump, and put partner to sleep / go alone
-			False - pass
-
-		If top_card is None, return:
-			's', 'c', 'h', 'd' - call specified suit as trump
-			False - pass
-			*** note if player is dealer (position == 3), player can't pass
-
-		"""
-		return True
-
-	def discard(self):
-		""" Choose card to discard after picking up
-
-		"""
-		return self.hand[0]
-
-	def end_call(self, caller_position, trump):
-		""" Communicate result of calling to player
-
-		"""
-		return
-
-	def end_trick(self):
-		""" Communicate result of trick to player
-
-		"""
-		return
-
-	def receive_card(self, card):
-		""" Receive card into player's hand """
-		self.hand.append(card)
-
-	def has_suit(self, suit):
-		""" Return True if player has specified suit in hand, otherwise false """
-		return suit in [card[1] for card in self.hand]
-
-
-
-p1 = Player("Henry")
-p2 = Player("Alex")
-p3 = Player("Paul")
-p4 = Player("Erica/Sarah")
-
-g = Game([p1, p2, p3, p4])
-g.play_game()
-
