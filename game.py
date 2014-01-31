@@ -8,7 +8,7 @@ class Game:
 
 	def __init__(self, players):
 		if len(players) != 4:
-			raise Exception("Game only supports 5 players")
+			raise IllegalPlayException("Game only supports 5 players")
 		self._players = players
 
 		position = 0
@@ -62,7 +62,7 @@ class Game:
 				if player.active:
 					card = player.action(trick)
 					if len(trick) > 0 and player.has_suit(trick[0][1]) and card[1] != trick[0][1]:
-						raise Exception("Must play the lead suit if you've got it")
+						raise IllegalPlayException("Must play the lead suit if you've got it")
 					trick.append(card)
 					player.hand.remove(card)
 				action_pos += 1
@@ -137,9 +137,9 @@ class Game:
 			call_result = p.call(None)
 
 			if call_result not in SUITS and p.position == 3:
-				raise Exception("The dealer got screwed - You have to call something!")
+				raise IllegalPlayException("The dealer got screwed - You have to call something!")
 			if call_result == self._top_card[1]:
-				raise Exception("Can't call the face up card after it's flipped")
+				raise IllegalPlayException("Can't call the face up card after it's flipped")
 			if call_result in SUITS:
 				self._trump = call_result
 
@@ -196,3 +196,6 @@ class Game:
 	@property
 	def game_score(self):
 		return self._game_score
+
+class IllegalPlayException(Exception):
+	pass
