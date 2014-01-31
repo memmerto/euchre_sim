@@ -240,11 +240,7 @@ class Player:
 			*** note if player is dealer (position == 3), player can't pass
 
 		"""
-		if top_card:
-			return True
-		else:
-			if self.position == 2:
-				return 's'
+		return True
 
 	def discard(self):
 		""" Choose card to discard after picking up
