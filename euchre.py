@@ -58,6 +58,9 @@ class Game:
 
 			for _ in xrange(4):
 				player = self._players[action_pos % 4]
+				if _ == 0:
+					print "**********"
+					print player.name, "is leading"
 				if player.active:
 					card = player.action(trick)
 					if len(trick) > 0 and player.has_suit(trick[0][1]) and card[1] != trick[0][1]:
@@ -67,7 +70,9 @@ class Game:
 				action_pos += 1
 
 			winning_card = util.best_card(trick, self._trump, trick[0])
-			start_pos = 0
+			winning_player = self._players[(trick.index(winning_card) + start_pos) % 4]
+			start_pos = winning_player.position
+			print winning_player.name, winning_card, trick
 
 		# score
 		self._team_one_score = 999
@@ -221,7 +226,7 @@ class Player:
 
 		"""
 		if top_card:
-			return False
+			return True
 		else:
 			if self.position == 2:
 				return 's'
