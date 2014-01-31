@@ -17,7 +17,7 @@ A skeleton for such a subclass is provided (MyPlayer).  In the implementaion of 
 - ```self.game.tricks_score```: A dict of the number of tricks won by each team for current hand, like {1: 3, 2: 2}
 - ```self.game.game_score```: A dict of the total game score for each team, like {1: 8, 2: 9}
 
-Any MyPlayer implementation that wants to keep track of cards played over time should implement its own storage to be used with the ```end_trick()``` callback.
+Any MyPlayer implementation that wants to keep track of cards played over time should implement its own storage to be used with the ```end_trick()``` callback.  ```utils``` also has some functions that help with manipulation of cards.
 
 A reasonable effort has been made to encapsulate info used to make the Game run correctly, but there are security holes that should be closed.  For now, it should be expected that the player does not modify its own attributes: ```self.team_num```, ```self.hand```, ```self.position```, ```self.active```.
 
