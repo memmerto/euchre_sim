@@ -71,6 +71,7 @@ class Game:
 			winning_player = self._players[(trick.index(winning_card) + start_pos) % 4]
 			start_pos = winning_player.position
 			self._tricks_score[winning_player.team_num] += 1
+
 			print winning_player.name, winning_card, trick
 
 		# score
@@ -188,6 +189,10 @@ class Game:
 	@property
 	def trump(self):
 		return self._trump
+
+	@property
+	def caller(self):
+		return self._caller
 
 	@property
 	def tricks_score(self):
