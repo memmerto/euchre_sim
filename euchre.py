@@ -23,17 +23,17 @@ class Game:
 				p.team_num = 2
 			position += 1
 
-		self._team_one_score = 0
-		self._team_two_score = 0
-		self._team_one_tricks = 0
-		self._team_two_tricks = 0
+		self._game_score = {1: 0, 2: 0}
+		self._tricks_score = {1: 0, 2: 0}
 		self.__deck = None
 		self._top_card = None
 		self._trump = None
+		self._caller = None
 
 	def play_game(self):
-		while (self.team_one_score < 10 and self.team_two_score < 10):
-			play_hand()
+		while (self._game_score[1] < 10 and self._game_score[2] < 10):
+			self.play_hand()
+			print "===============> SCORE:", self._game_score
 
 		print "GAME OVER!"
 
@@ -43,8 +43,8 @@ class Game:
 
 		# deal
 		self.deal_hand()
-		self.print_hand()
-		print "top card", self._top_card
+		#self.print_hand()
+		#print "top card", self._top_card
 
 		# call trump
 		self.call_trump()
@@ -72,19 +72,21 @@ class Game:
 			winning_card = util.best_card(trick, self._trump, trick[0])
 			winning_player = self._players[(trick.index(winning_card) + start_pos) % 4]
 			start_pos = winning_player.position
+			self._tricks_score[winning_player.team_num] += 1
 			print winning_player.name, winning_card, trick
 
 		# score
-		self._team_one_score = 999
-		self._team_two_score = 999
+		self.score_hand()
 
 		# reset
+		self._trump = None
+		self._top_card = None
+		for team_num in xrange(1, 3):
+			self._tricks_score[team_num] = 0
+
 		for p in self._players:
 			p.hand = []
-			self._team_one_tricks = 0
-			self._team_two_tricks = 0
-			self._trump = None
-			self._top_card = None
+			p.active = True
 
 			# rotate dealer (rotate positions)
 			if p.position == 0:
@@ -120,10 +122,12 @@ class Game:
 				dealer.hand.remove(discard)
 				
 				self._trump = self._top_card[1]
+
 				if call_result == "alone":
 					self._teammate_for(p).active = False
 
-				# tell players who called
+				# tell players and game who called
+				self._caller = p
 				for pl in self._players:
 					pl.end_call(p.position, self._trump)
 				return
@@ -140,9 +144,28 @@ class Game:
 				raise Exception("Can't call the face up card after it's flipped")
 			if call_result in SUITS:
 				self._trump = call_result
+
+				# tell players and game who called
+				self._caller = p
 				for pl in self._players:
 					pl.end_call(p.position, self._trump)
 				return
+
+	def score_hand(self):
+		calling_team = self._caller.team_num
+		non_calling_team = (calling_team % 2) + 1
+		if self._tricks_score[calling_team] > self._tricks_score[non_calling_team]:
+			if self._tricks_score[calling_team] == 5:
+				team_players = [p for p in self._players if p.team_num == calling_team]
+				went_alone = reduce(lambda x, y: not x.active or not y.active, team_players)
+				if went_alone:
+					self._game_score[calling_team] += 4
+				else:
+					self._game_score[calling_team] += 2
+			else:
+				self._game_score[calling_team] += 1
+		else:
+			self._game_score[non_calling_team] += 2
 
 	def print_hand(self):
 		""" Print hand for each player """
@@ -169,20 +192,12 @@ class Game:
 		return self._trump
 
 	@property
-	def team_one_tricks(self):
-		return self._team_one_tricks
+	def tricks_score(self):
+		return self._tricks_score
 
 	@property
-	def team_two_tricks(self):
-		return self._team_two_tricks
-
-	@property
-	def team_one_score(self):
-		return self._team_one_score
-
-	@property
-	def team_two_score(self):
-		return self._team_two_score
+	def game_score(self):
+		return self._game_score
 
 
 class Player:
@@ -265,5 +280,5 @@ p3 = Player("Paul")
 p4 = Player("Erica/Sarah")
 
 g = Game([p1, p2, p3, p4])
-g.play_hand()
+g.play_game()
 
