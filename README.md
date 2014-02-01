@@ -21,9 +21,8 @@ Any MyPlayer implementation that wants to keep track of cards played over time s
 
 A reasonable effort has been made to encapsulate info used to make the Game run correctly, but there are security holes that should be closed.  For now, it should be expected that the player does not modify its own attributes: ```self.team_num```, ```self.hand```, ```self.position```, ```self.active```.
 
-Things like ```self.position``` and ```self.team_num``` are not used by the Game client, so if a player changes them for some reason, the client won't be affected.
+Things like ```self.position```, ```self.team_num```, and ```self.active``` are not used by the Game client, so if a player changes them for some reason, the client won't be affected.
 
-```self.active``` might still be an issue, and ```self.hand``` is definitely problematic.
 
 Dependencies
 ------------
@@ -33,4 +32,5 @@ Dependencies
 TODOs
 -----
 
-This should seriously have some test coverage.
+- Each player's hand should be kept track of by the Game client for security reasons, and every card coming from a player's hand should be validated.
+- This should seriously have some test coverage.

@@ -14,6 +14,7 @@ class Game:
 		# set positions and teams
 		self._positions = {}
 		self._teams = {}
+		self._inactives = [] # current inactive player for the hand ("alone")
 		position = 0
 		for p in self._players:
 			p.game = self
@@ -62,7 +63,7 @@ class Game:
 
 			for p in self._players:
 				card = p.action(trick)
-				if p.active:
+				if p not in self._inactives:
 					if len(trick) > 0 and p.has_suit(trick[0][1]) and card[1] != trick[0][1]:
 						raise IllegalPlayException("Must play the lead suit if you've got it")
 					trick.append(card)
@@ -80,6 +81,7 @@ class Game:
 		# reset
 		self._trump = None
 		self._top_card = None
+		self._inactives = []
 		for team_num in xrange(1, 3):
 			self._tricks_score[team_num] = 0
 
@@ -121,6 +123,7 @@ class Game:
 				self._trump = self._top_card[1]
 
 				if call_result == "alone":
+					self._inactives.append(self._teammate_for(p))
 					self._teammate_for(p).active = False
 
 				# tell players and game who called
@@ -154,7 +157,7 @@ class Game:
 		if self._tricks_score[calling_team] > self._tricks_score[non_calling_team]:
 			if self._tricks_score[calling_team] == 5:
 				team_players = [p for p in self._players if self._teams[p] == calling_team]
-				went_alone = reduce(lambda x, y: not x.active or not y.active, team_players)
+				went_alone = reduce(lambda x, y: x not in self._inactives or y not in self._inactives, team_players)
 				if went_alone:
 					self._game_score[calling_team] += 4
 				else:
@@ -168,7 +171,7 @@ class Game:
 		""" Print hand for each player """
 		print "------------------- Trump:", self._trump, "---------------"
 		for p in self._players:
-			if p.active:
+			if p not in self._inactives:
 				print self._positions[p], p.name, p.hand
 			else:
 				print self._positions[p], p.name, "*** asleep ***"
