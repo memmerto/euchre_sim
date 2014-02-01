@@ -11,9 +11,14 @@ class Game:
 			raise IllegalPlayException("Game only supports 5 players")
 		self._players = players
 
+		# set positions and teams
+		self._positions = {}
 		position = 0
 		for p in self._players:
 			p.game = self
+
+			# set both player attr and position dict for security
+			self._positions[p] = position
 			p.position = position
 			if p.position % 2 == 0:
 				p.team_num = 1
@@ -27,6 +32,7 @@ class Game:
 		self._top_card = None
 		self._trump = None
 		self._caller = None
+		self._dealer = None
 
 	def play_game(self):
 		while (self._game_score[1] < 10 and self._game_score[2] < 10):
@@ -36,8 +42,8 @@ class Game:
 		print "GAME OVER!"
 
 	def play_hand(self):
-		# order players based on position values (3 for dealer)
-		self._players = sorted(self._players, key=lambda x: x.position)
+		# dealer is the "last" player in order
+		self._dealer = self._players[3]
 
 		# deal
 		self.deal_hand()
@@ -47,31 +53,22 @@ class Game:
 		self.print_hand()
 		print "top card", self._top_card
 
-
 		# play tricks
-		start_pos = 0
 		for _ in xrange(5):
-			action_pos = start_pos
 			trick = []
 
-			for _ in xrange(4):
-				player = self._players[action_pos % 4]
-				if _ == 0:
-					print "**********"
-					print player.name, "is leading"
-				if player.active:
-					card = player.action(trick)
-					if len(trick) > 0 and player.has_suit(trick[0][1]) and card[1] != trick[0][1]:
+			for p in self._players:
+				card = p.action(trick)
+				if p.active:
+					if len(trick) > 0 and p.has_suit(trick[0][1]) and card[1] != trick[0][1]:
 						raise IllegalPlayException("Must play the lead suit if you've got it")
 					trick.append(card)
-					player.hand.remove(card)
-				action_pos += 1
+					p.hand.remove(card)
 
 			winning_card = utils.best_card(trick, self._trump, trick[0])
-			winning_player = self._players[(trick.index(winning_card) + start_pos) % 4]
-			start_pos = winning_player.position
+			winning_player = self._players[trick.index(winning_card)]
 			self._tricks_score[winning_player.team_num] += 1
-
+			self._rotate_until(winning_player)
 			print winning_player.name, winning_card, trick
 
 		# score
@@ -87,11 +84,9 @@ class Game:
 			p.hand = []
 			p.active = True
 
-			# rotate dealer (rotate positions)
-			if p.position == 0:
-				p.position = 3
-			else:
-				p.position -= 1
+		# rotate dealer (rotate positions)
+		self._rotate_until(self._dealer)
+		self._rotate()
 
 	def deal_hand(self):
 		self.__deck = [val + suit for val in VALUES for suit in SUITS]
@@ -128,7 +123,7 @@ class Game:
 				# tell players and game who called
 				self._caller = p
 				for pl in self._players:
-					pl.end_call(p.position, self._trump)
+					pl.end_call(self._positions[p], self._trump)
 				return
 			print p.name, ":", self._trump
 
@@ -137,7 +132,7 @@ class Game:
 		for p in self._players:
 			call_result = p.call(None)
 
-			if call_result not in SUITS and p.position == 3:
+			if call_result not in SUITS and p == dealer:
 				raise IllegalPlayException("The dealer got screwed - You have to call something!")
 			if call_result == self._top_card[1]:
 				raise IllegalPlayException("Can't call the face up card after it's flipped")
@@ -147,7 +142,7 @@ class Game:
 				# tell players and game who called
 				self._caller = p
 				for pl in self._players:
-					pl.end_call(p.position, self._trump)
+					pl.end_call(self._positions[p], self._trump)
 				return
 
 	def score_hand(self):
@@ -171,17 +166,23 @@ class Game:
 		print "------------------- Trump:", self._trump, "---------------"
 		for p in self._players:
 			if p.active:
-				print p.position, p.name, p.hand
+				print self._positions[p], p.name, p.hand
 			else:
-				print p.position, p.name, "*** asleep ***"
+				print self._positions[p], p.name, "*** asleep ***"
 
 	def _teammate_for(self, player):
 		""" Return teammate of player """
-		return filter(lambda teammate: teammate.team_num == player.team_num and
-									   teammate.position != player.position,
-									   self._players)[0]
+		return self._players[self._positions[(player.num + 2) % 4]]
 
-	# Properties
+	def _rotate(self):
+		""" Rotate players in self._players so that player after dealer becomes dealer """
+		self._players = self._players[1:] + self._players[:1]
+
+	def _rotate_until(self, player_at_front):
+		""" Rotate players in self._players until player_at_front is as such """
+		while self._players[0] != player_at_front:
+			self._rotate()
+
 	@property
 	def top_card(self):
 		return self._top_card
@@ -191,8 +192,12 @@ class Game:
 		return self._trump
 
 	@property
-	def caller(self):
-		return self._caller
+	def caller_pos(self):
+		return self._positions[self._caller]
+
+	@property
+	def dealer_pos(self):
+		return self._positions[self._dealer]
 
 	@property
 	def tricks_score(self):
