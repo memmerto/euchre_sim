@@ -39,7 +39,7 @@ def same_color(suit):
 	elif suit == 'h':
 		return 'd'
 
-
+# Should be unit tests
 # print best_card(['Qs', 'As'])
 # print best_card(['As', 'Jh'], 'h')
 # print best_card(['Jc', 'Js'], 'h', 's')
