@@ -24,6 +24,10 @@ A reasonable effort has been made to encapsulate info used to make the Game run 
 Things like ```self.position```, ```self.team_num```, and ```self.active``` are not used by the Game client, so if a player changes them for some reason, the client won't be affected.
 
 
+
+I'm really not proud of the design redundancies (both Game and Player keep track of many things), but it works.
+
+
 Dependencies
 ------------
 
@@ -32,5 +36,4 @@ Dependencies
 TODOs
 -----
 
-- Each player's hand should be kept track of by the Game client for security reasons, and every card coming from a player's hand should be validated.
 - This should seriously have some test coverage.

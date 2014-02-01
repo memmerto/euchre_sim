@@ -14,6 +14,7 @@ class Game:
 		# set positions and teams
 		self._positions = {}
 		self._teams = {}
+		self._hands = {p: [] for p in self._players}
 		self._inactives = [] # current inactive player for the hand ("alone")
 		position = 0
 		for p in self._players:
@@ -66,8 +67,11 @@ class Game:
 				if p not in self._inactives:
 					if len(trick) > 0 and p.has_suit(trick[0][1]) and card[1] != trick[0][1]:
 						raise IllegalPlayException("Must play the lead suit if you've got it")
+					if card not in self._hands[p]:
+						raise IllegalPlayException("Player doesn't have that card to play")
 					trick.append(card)
-					p.hand.remove(card)
+					p.hand.remove(card) # Player
+					self._hands[p].remove(card) # Game
 
 			winning_card = utils.best_card(trick, self._trump, trick[0])
 			winning_player = self._players[trick.index(winning_card)]
@@ -86,7 +90,8 @@ class Game:
 			self._tricks_score[team_num] = 0
 
 		for p in self._players:
-			p.hand = []
+			p.hand = [] # Player
+			self._hands[p] = [] # Game
 			p.active = True
 
 		# rotate dealer (rotate positions)
@@ -100,25 +105,30 @@ class Game:
 		# euchre style dealing, for true authenticity
 		for p in self._players:
 			for _ in xrange(randrange(1,5)):
-				p.receive_card(self.__deck.pop())
+				card = self.__deck.pop()
+				p.receive_card(card) # Player
+				self._hands[p].append(card) # Game
 
 		for p in self._players:
-			for _ in xrange(5-len(p.hand)):
-				p.receive_card(self.__deck.pop())
+			for _ in xrange(5-len(self._hands[p])):
+				card = self.__deck.pop()
+				p.receive_card(card) # Player
+				self._hands[p].append(card) # Game
 
 		self._top_card = self.__deck.pop()
 
 	def call_trump(self):
-		dealer = self._players[3]
-
 		for p in self._players:
 			call_result = p.call(self._top_card)
 			if call_result != False:
-				dealer.receive_card(self._top_card)
-				discard = dealer.discard()
+				self._dealer.receive_card(self._top_card) # Player
+				self._hands[self._dealer].append(self._top_card) # Game
+				discard = self._dealer.discard()
 
-				# TODO: check that an appropriate card is discarded
-				dealer.hand.remove(discard)
+				if discard not in self._hands[self._dealer]:
+					raise IllegalPlayException("Dealer must discard card that was in hand")
+				self._dealer.hand.remove(discard) # Player
+				self._hands[self._dealer].remove(discard) # Game
 				
 				self._trump = self._top_card[1]
 
@@ -138,7 +148,7 @@ class Game:
 		for p in self._players:
 			call_result = p.call(None)
 
-			if call_result not in SUITS and p == dealer:
+			if call_result not in SUITS and p == self._dealer:
 				raise IllegalPlayException("The dealer got screwed - You have to call something!")
 			if call_result == self._top_card[1]:
 				raise IllegalPlayException("Can't call the face up card after it's flipped")
@@ -172,7 +182,7 @@ class Game:
 		print "------------------- Trump:", self._trump, "---------------"
 		for p in self._players:
 			if p not in self._inactives:
-				print self._positions[p], p.name, p.hand
+				print self._positions[p], p.name, self._hands[p]
 			else:
 				print self._positions[p], p.name, "*** asleep ***"
 
