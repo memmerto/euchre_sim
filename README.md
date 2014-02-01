@@ -5,7 +5,7 @@ It's a simple euchre simulation intended for AI competition.  It's not exactly b
 
 - ```call()```: The basic means of playing a card during a trick.
 - ```action()```: Calling trump by telling the dealer to "pick it up" or calling a suit
-- ```discard()```: Discard if you're the deal and pick up the face-up card
+- ```discard()```: Discard if you're the dealer and pick up the face-up card
 - ```end_call()``` (optional): See who ended up calling what
 - ```end_trick()``` (optional): See who won the trick and what cards were played
 
