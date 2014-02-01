@@ -9,7 +9,7 @@ It's a simple euchre simulation intended for AI competition.  It's not exactly b
 - ```end_call()``` (optional): See who ended up calling what
 - ```end_trick()``` (optional): See who won the trick and what cards were played
 
-A skeleton for such a subclass is provided (MyPlayer).  In the implementaion of these five methods, MyPlayer may access info about the game by checking the following properties:
+A skeleton for such a subclass is provided (MyPlayer).  The Player class itself implements the most simple legal versions of each function (they're not very smart).  In the implementaion of these five methods, MyPlayer may access info about the game by checking the following properties:
 
 - ```self.game.topcard```: The face up card that showed during the calling portion of the hand
 - ```self.game.trump```: Trump for the current hand
@@ -20,6 +20,10 @@ A skeleton for such a subclass is provided (MyPlayer).  In the implementaion of 
 Any MyPlayer implementation that wants to keep track of cards played over time should implement its own storage to be used with the ```end_trick()``` callback.  ```utils``` also has some functions that help with manipulation of cards.
 
 A reasonable effort has been made to encapsulate info used to make the Game run correctly, but there are security holes that should be closed.  For now, it should be expected that the player does not modify its own attributes: ```self.team_num```, ```self.hand```, ```self.position```, ```self.active```.
+
+Things like ```self.position``` and ```self.team_num``` are not used by the Game client, so if a player changes them for some reason, the client won't be affected.
+
+```self.active``` might still be an issue, and ```self.hand``` is definitely problematic.
 
 Dependencies
 ------------

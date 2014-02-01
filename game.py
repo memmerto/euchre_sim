@@ -13,6 +13,7 @@ class Game:
 
 		# set positions and teams
 		self._positions = {}
+		self._teams = {}
 		position = 0
 		for p in self._players:
 			p.game = self
@@ -22,8 +23,10 @@ class Game:
 			p.position = position
 			if p.position % 2 == 0:
 				p.team_num = 1
+				self._teams[p] = 1
 			else:
 				p.team_num = 2
+				self._teams[p] = 2
 			position += 1
 
 		self._game_score = {1: 0, 2: 0}
@@ -67,7 +70,7 @@ class Game:
 
 			winning_card = utils.best_card(trick, self._trump, trick[0])
 			winning_player = self._players[trick.index(winning_card)]
-			self._tricks_score[winning_player.team_num] += 1
+			self._tricks_score[self._teams[winning_player]] += 1
 			self._rotate_until(winning_player)
 			print winning_player.name, winning_card, trick
 
@@ -146,11 +149,11 @@ class Game:
 				return
 
 	def score_hand(self):
-		calling_team = self._caller.team_num
+		calling_team = self._teams[self._caller]
 		non_calling_team = (calling_team % 2) + 1
 		if self._tricks_score[calling_team] > self._tricks_score[non_calling_team]:
 			if self._tricks_score[calling_team] == 5:
-				team_players = [p for p in self._players if p.team_num == calling_team]
+				team_players = [p for p in self._players if self._teams[p] == calling_team]
 				went_alone = reduce(lambda x, y: not x.active or not y.active, team_players)
 				if went_alone:
 					self._game_score[calling_team] += 4
