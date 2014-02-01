@@ -6,7 +6,7 @@ class Player:
 		self.name = name
 		self.team_num = None
 		self.hand = []
-		self.position = None
+		self.position = None # position at the table, doesn't change for whole game
 		self.active = True # set to False to "go it alone"/"put partner to sleep"
 		self.game = None
 
@@ -45,20 +45,29 @@ class Player:
 	def discard(self):
 		""" Choose card to discard after picking up
 
+		Return the string (like 'As' or 'Th'), it will automatically be removed from hand
+
 		"""
 		return self.hand[0]
 
 	def end_call(self, caller_position, trump):
 		""" Communicate result of calling to player
 
-		"""
-		return
+		caller_postion -- current position of player who called, so if your position is 0, your
+			teammate would be 2
+		trump -- the trump that was called.  can also be accessed via self.game.trump
 
-	def end_trick(self):
+		"""
+		pass
+
+	def end_trick(self, winner_position, lead_position, trick):
 		""" Communicate result of trick to player
 
+		winner_position - position of winner of trick
+		lead_position - position of player who led trick, used to tell who played what
+
 		"""
-		return
+		pass
 
 	def receive_card(self, card):
 		""" Receive card into player's hand """
