@@ -19,13 +19,9 @@ A skeleton for such a subclass is provided (MyPlayer).  The Player class itself 
 
 Any MyPlayer implementation that wants to keep track of cards played over time should implement its own storage to be used with the ```end_trick()``` callback.  ```utils``` also has some functions that help with manipulation of cards.
 
-A reasonable effort has been made to encapsulate info used to make the Game run correctly, but there are security holes that should be closed.  For now, it should be expected that the player does not modify its own attributes: ```self.team_num```, ```self.hand```, ```self.position```, ```self.active```.
-
 Things like ```self.position```, ```self.team_num```, and ```self.active``` are not used by the Game client, so if a player changes them for some reason, the client won't be affected.
 
-
-
-I'm really not proud of the design redundancies (both Game and Player keep track of many things), but it works.
+I'm really not proud of the design redundancies (both Game and Player keep track of many things), but it works.  I'll probably change it so that players don't keep track of their own business really.
 
 
 Dependencies
