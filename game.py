@@ -194,7 +194,7 @@ class Game:
 			self._rotate()
 
 	def hand_for(self, player):
-
+		""" Return hand for specified player """
 		return self._hands[player]
 
 	def position_for(self, player):
