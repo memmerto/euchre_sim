@@ -201,7 +201,7 @@ class Game:
 		""" Return position of specified player """
 		return self._positions[player]
 
-	def team_num_for(player):
+	def team_num_for(self, player):
 		""" Return team_num of specified player """
 		if player in self._teams[1]:
 			return 1
@@ -209,6 +209,10 @@ class Game:
 			return 2
 		else:
 			raise Exception("You don't appear to be on either team :/")
+
+	def is_player_active(self, player):
+		""" Return True if player is active this hand """
+		return player not in self._inactives
 
 	@property
 	def top_card(self):
