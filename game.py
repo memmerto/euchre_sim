@@ -194,12 +194,21 @@ class Game:
 			self._rotate()
 
 	def hand_for(self, player):
-		""" Return hand for specified player """
+		""" Return hand of specified player """
 		return self._hands[player]
 
 	def position_for(self, player):
 		""" Return position of specified player """
 		return self._positions[player]
+
+	def team_num_for(player):
+		""" Return team_num of specified player """
+		if player in self._teams[1]:
+			return 1
+		elif player in self._teams[2]:
+			return 2
+		else:
+			raise Exception("You don't appear to be on either team :/")
 
 	@property
 	def top_card(self):
