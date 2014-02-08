@@ -70,7 +70,6 @@ class Game:
 					if card not in self._hands[p]:
 						raise IllegalPlayException("Player doesn't have that card to play")
 					trick.append(card)
-					p.hand.remove(card) # Player
 					self._hands[p].remove(card) # Game
 
 			winning_card = utils.best_card(trick, self._trump, trick[0])
@@ -90,7 +89,6 @@ class Game:
 			self._tricks_score[team_num] = 0
 
 		for p in self._players:
-			p.hand = [] # Player
 			self._hands[p] = [] # Game
 			p.active = True
 
@@ -106,13 +104,11 @@ class Game:
 		for p in self._players:
 			for _ in xrange(randrange(1,5)):
 				card = self.__deck.pop()
-				p.receive_card(card) # Player
 				self._hands[p].append(card) # Game
 
 		for p in self._players:
 			for _ in xrange(5-len(self._hands[p])):
 				card = self.__deck.pop()
-				p.receive_card(card) # Player
 				self._hands[p].append(card) # Game
 
 		self._top_card = self.__deck.pop()
@@ -121,13 +117,11 @@ class Game:
 		for p in self._players:
 			call_result = p.call(self._top_card)
 			if call_result != False:
-				self._dealer.receive_card(self._top_card) # Player
 				self._hands[self._dealer].append(self._top_card) # Game
 				discard = self._dealer.discard()
 
 				if discard not in self._hands[self._dealer]:
 					raise IllegalPlayException("Dealer must discard card that was in hand")
-				self._dealer.hand.remove(discard) # Player
 				self._hands[self._dealer].remove(discard) # Game
 				
 				self._trump = self._top_card[1]
@@ -198,6 +192,9 @@ class Game:
 		""" Rotate players in self._players until player_at_front is as such """
 		while self._players[0] != player_at_front:
 			self._rotate()
+
+	def get_hand_for(self, player):
+		return self._hands[player]
 
 	@property
 	def top_card(self):
