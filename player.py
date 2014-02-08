@@ -16,13 +16,13 @@ class Player:
 
 		"""
 		card_to_play = None
-		for card in self.game.get_hand_for(self):
+		for card in self.game.hand_for(self):
 			if not trick:
-				card_to_play = self.game.get_hand_for(self)[0]
+				card_to_play = self.game.hand_for(self)[0]
 			elif trick[0][1] == card[1]:
 				card_to_play = card
 		if not card_to_play:
-			card_to_play = self.game.get_hand_for(self)[0]
+			card_to_play = self.game.hand_for(self)[0]
 		return card_to_play
 
 	def call(self, top_card):
@@ -47,7 +47,7 @@ class Player:
 		Return the string (like 'As' or 'Th'), it will automatically be removed from hand
 
 		"""
-		return self.game.get_hand_for(self)[0]
+		return self.game.hand_for(self)[0]
 
 	def end_call(self, caller_position, trump):
 		""" Communicate result of calling to player
@@ -70,6 +70,6 @@ class Player:
 
 	def has_suit(self, suit):
 		""" Return True if player has specified suit in hand, otherwise false """
-		return suit in [card[1] for card in self.game.get_hand_for(self)]
+		return suit in [card[1] for card in self.game.hand_for(self)]
 
 

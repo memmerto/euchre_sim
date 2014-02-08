@@ -193,7 +193,7 @@ class Game:
 		while self._players[0] != player_at_front:
 			self._rotate()
 
-	def get_hand_for(self, player):
+	def hand_for(self, player):
 		return self._hands[player]
 
 	@property
