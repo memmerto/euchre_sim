@@ -17,12 +17,14 @@ A skeleton for such a subclass is provided (MyPlayer).  The Player class itself 
 - ```self.game.tricks_score```: A dict of the number of tricks won by each team for current hand, like {1: 3, 2: 2}
 - ```self.game.game_score```: A dict of the total game score for each team, like {1: 8, 2: 9}
 
+Also available to the player are the following functions called on the Game object (to prevent tampering), which return info about the player's current state:
+
+- ```self.game.hand_for(self)```: Available cards to play at that moment
+- ```self.game.position_for(self)```: Permanent position at table for the game
+- ```self.game.team_num_for(self)```: Team number
+- ```self.game.is_player_active(self)```: True if player has not been told its teammate wants to go alone
+
 Any MyPlayer implementation that wants to keep track of cards played over time should implement its own storage to be used with the ```end_trick()``` callback.  ```utils``` also has some functions that help with manipulation of cards.
-
-Things like ```self.position```, ```self.team_num```, and ```self.active``` are not used by the Game client, so if a player changes them for some reason, the client won't be affected.
-
-I'm really not proud of the design redundancies (both Game and Player keep track of many things), but it works.  I'll probably change it so that players don't keep track of their own business really.
-
 
 Dependencies
 ------------
