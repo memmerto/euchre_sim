@@ -194,7 +194,12 @@ class Game:
 			self._rotate()
 
 	def hand_for(self, player):
+
 		return self._hands[player]
+
+	def position_for(self, player):
+		""" Return position of specified player """
+		return self._positions[player]
 
 	@property
 	def top_card(self):

@@ -5,7 +5,6 @@ class Player:
 	def __init__(self, name):
 		self.name = name
 		self.team_num = None
-		self.position = None # position at the table, doesn't change for whole game
 		self.active = True # set to False to "go it alone"/"put partner to sleep"
 		self.game = None
 
