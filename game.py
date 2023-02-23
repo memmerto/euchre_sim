@@ -4,7 +4,6 @@ import utils
 
 SUITS = ['s', 'h', 'd', 'c']
 VALUES = ['9','T','J','Q','K','A']
-MAX_SCORE = 10
 
 class Game:
 
@@ -42,7 +41,7 @@ class Game:
 		self._dealer = None
 
 	def play_game(self):
-		while (self._game_score[1] < MAX_SCORE and self._game_score[2] < MAX_SCORE):
+		while (self._game_score[1] < 10 and self._game_score[2] < 10):
 			self.play_hand()
 			print("--------------------")
 			print("Score:", self._game_score)
