@@ -1,5 +1,5 @@
 from game import Game
-from zach_sim_player import ZachSimPlayer
+from zachsim_player import ZachSimPlayer
 
 if __name__ == "__main__":
 	p1 = ZachSimPlayer("Alma")
