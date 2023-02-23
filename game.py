@@ -3,6 +3,7 @@ import utils
 
 SUITS = ['s', 'h', 'd', 'c']
 VALUES = ['9','T','J','Q','K','A']
+MAX_SCORE = 10
 
 class Game:
 
@@ -40,11 +41,13 @@ class Game:
 		self._dealer = None
 
 	def play_game(self):
-		while (self._game_score[1] < 10 and self._game_score[2] < 10):
+		while (self._game_score[1] < MAX_SCORE and self._game_score[2] < MAX_SCORE):
 			self.play_hand()
-			print "===============> SCORE:", self._game_score
+			print("--------------------")
+			print("Score:", self._game_score)
+			print("--------------------")
 
-		print "GAME OVER!"
+		print("GAME OVER!")
 
 	def play_hand(self):
 		# dealer is the "last" player in order
@@ -55,11 +58,14 @@ class Game:
 
 		# call trump
 		self.call_trump()
+
+		# display trump, top card and hands
+		print("====================")
 		self.print_hand()
-		print "top card", self._top_card
 
 		# play tricks
-		for _ in xrange(5):
+		print("Tricks:")
+		for _ in range(5):
 			trick = []
 
 			for p in self._players:
@@ -76,7 +82,7 @@ class Game:
 			winning_player = self._players[trick.index(winning_card)]
 			self._tricks_score[self._teams[winning_player]] += 1
 			self._rotate_until(winning_player)
-			print winning_player.name, winning_card, trick
+			print(winning_player.name, winning_card, trick)
 
 		# score
 		self.score_hand()
@@ -85,7 +91,7 @@ class Game:
 		self._trump = None
 		self._top_card = None
 		self._inactives = []
-		for team_num in xrange(1, 3):
+		for team_num in range(1, 3):
 			self._tricks_score[team_num] = 0
 
 		for p in self._players:
@@ -102,12 +108,12 @@ class Game:
 
 		# euchre style dealing, for true authenticity
 		for p in self._players:
-			for _ in xrange(randrange(1,5)):
+			for _ in range(randrange(1,5)):
 				card = self.__deck.pop()
 				self._hands[p].append(card) # Game
 
 		for p in self._players:
-			for _ in xrange(5-len(self._hands[p])):
+			for _ in range(5-len(self._hands[p])):
 				card = self.__deck.pop()
 				self._hands[p].append(card) # Game
 
@@ -135,7 +141,7 @@ class Game:
 				for pl in self._players:
 					pl.end_call(self._positions[p], self._trump)
 				return
-			print p.name, ":", self._trump
+			print(p.name, ":", self._trump)
 
 		self.print_hand()
 
@@ -173,12 +179,17 @@ class Game:
 
 	def print_hand(self):
 		""" Print hand for each player """
-		print "------------------- Trump:", self._trump, "---------------"
+		print("--------------------")
+		print("Trump:    ", self._trump)
+		print("Top Card: ", self._top_card)
+		print("--------------------")
+		print("Hands:")
 		for p in self._players:
 			if p not in self._inactives:
-				print self._positions[p], p.name, self._hands[p]
+				print(self._positions[p], p.name, self._hands[p])
 			else:
-				print self._positions[p], p.name, "*** asleep ***"
+				print(self._positions[p], p.name, "*** asleep ***")
+		print("--------------------")
 
 	def _teammate_for(self, player):
 		""" Return teammate of player """

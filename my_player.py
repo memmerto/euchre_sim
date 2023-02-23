@@ -1,4 +1,4 @@
-import util
+import utils
 from player import Player
 
 class MyPlayer(Player):

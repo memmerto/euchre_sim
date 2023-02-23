@@ -1,4 +1,4 @@
-import util
+import utils
 
 class Player:
 
@@ -68,5 +68,3 @@ class Player:
 	def has_suit(self, suit):
 		""" Return True if player has specified suit in hand, otherwise false """
 		return suit in [card[1] for card in self.game.hand_for(self)]
-
-
