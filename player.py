@@ -20,6 +20,7 @@ class Player:
 				card_to_play = card
 		if not card_to_play:
 			card_to_play = self.game.hand_for(self)[0]
+		# FIXME: Won't pick the left bower if we have it; breaks following suit rules
 		return card_to_play
 
 	def call(self, top_card):
