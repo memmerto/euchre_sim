@@ -4,7 +4,7 @@ from player import Player
 class MyPlayer(Player):
 
 	def __init__(self, name):
-		Player.__init__(self, name)
+		super().__init__(name)
 
 	def action(self, trick):
 		""" Play a card in trick """
