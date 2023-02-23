@@ -25,3 +25,7 @@ class MyPlayer(Player):
 	def end_trick(self):
 		""" Communicate result of trick to player """
 		pass
+
+	def has_suit(self,suit):
+		""" Return True if player has specified suit in hand, otherwise false """
+		pass
