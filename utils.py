@@ -1,4 +1,4 @@
-VALUE_MAP = {'9': 0, 'T': 1, 'J': 2, 'Q': 3, 'K': 4, 'A': 5}
+VALUE_MAP = {'9': 1, 'T': 2, 'J': 3, 'Q': 4, 'K': 5, 'A': 6}
 
 def best_card(cards, trump=None, lead=None):
 	""" Calculate winning card from list of cards
