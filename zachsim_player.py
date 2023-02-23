@@ -7,25 +7,167 @@ class ZachSimPlayer(Player):
 		super().__init__(name)
 
 	def action(self, trick):
-		""" Play a card in trick """
 		return super().action(trick)
 
+	def action(self, trick):
+		card_to_play = None
+		path = None
+
+		# playing the lead
+		if not trick:
+			# lead: play highest trump
+			card_to_play = self.highest_trump()
+			path = "1";
+
+			# lead: if no trump, highest non-trump
+			if not card_to_play:
+				card_to_play = self.highest_non_trump()
+				path = "2";
+
+		# following the lead
+		else:
+			# follow suit: highest card, iff you can beat the leader
+			card_to_play = self.highest_of_suit_beats_lead(trick[0])
+			path = "3";
+
+			# follow suit: throw low
+			if not card_to_play:
+				card_to_play = self.lowest_of_suit(trick[0])
+				path = "4";
+
+		# can't follow the lead
+		if not card_to_play:
+			card_to_play = self.lowest_overall()
+			path = "5";
+
+		if not card_to_play:
+			# TODO: blow up!
+			path = "6";
+			pass
+
+		print("DEBUG: ", path)
+		return card_to_play
+
 	def call(self, top_card):
-		""" Call trump or pass """
 		return super().call(top_card)
 
 	def discard(self):
-		""" Choose card to discard after picking up """
 		return super().discard()
 
 	def end_call(self, caller_position, trump):
-		""" Communicate result of calling to player """
 		return super().end_call(caller_position, trump)
 
 	def end_trick(self):
-		""" Communicate result of trick to player """
 		return super().end_trick()
 
 	def has_suit(self,suit):
-		""" Return True if player has specified suit in hand, otherwise false """
 		return super().has_suit(suit)
+
+	def highest_trump(self):
+		card_to_play = None
+		rightbower = 'J' + self.game._trump
+		leftbower = 'J' + utils.same_color(self.game._trump)
+
+		# get list of trump cards in hand
+		trumps = self.game.hand_for(self).copy()
+		for card in trumps:
+			if card[1] != self.game._trump and card != leftbower:
+				trumps.remove(card)
+
+		# sort trumps highest to lowest
+		if (len(trumps) > 0):
+			card_order = [ 'J', 'A', 'K', 'Q', 'T', '9' ]
+			#suit_order = [ self.game._trump, utils.same_color(self.game._trump) ]
+			sorted_trumps = sorted(trumps, key=lambda c: (card_order.index(c[0])))
+			#TODO: sort to get the bowers in here
+			card_to_play = sorted_trumps[0]
+
+		return card_to_play
+
+	def highest_non_trump(self):
+		card_to_play = None
+		rightbower = 'J' + self.game._trump
+		leftbower = 'J' + utils.same_color(self.game._trump)
+
+		# get list of non-trump cards in hand
+		nontrumps = self.game.hand_for(self).copy()
+		for card in nontrumps:
+			if card[1] == self.game._trump or card == leftbower:
+				nontrumps.remove(card)
+
+		# sort non-trumps lowest to highest
+		if (len(nontrumps) > 0):
+			card_order = [ 'J', 'A', 'K', 'Q', 'T', '9' ]
+			sorted_nontrumps = sorted(nontrumps, key=lambda c: (card_order.index(c[0])))
+			card_to_play = sorted_nontrumps[0]
+
+		return card_to_play
+
+	def highest_of_suit_beats_lead(self,lead):
+		card_to_play = None
+		if lead[1] == self.game._trump:
+			leftbower = 'J' + utils.same_color(lead[1]);
+		else:
+			leftbower = None
+
+		# get list of cards in hand of the same suit (including left bower if suit is trump)
+		possibles = self.game.hand_for(self).copy()
+		for card in possibles:
+			if card[1] != lead[1] and card != leftbower:
+				possibles.remove(card);
+
+		# sort highest to lowest
+		# and remove anything that won't beat the lead
+		if (len(possibles) > 0):
+			card_order = [ 'J', 'A', 'K', 'Q', 'T', '9' ]
+			#suit_order = [ self.game._trump, utils.same_color(self.game._trump) ]
+			sorted_possibles = sorted(possibles, key=lambda c: (card_order.index(c[0])))
+			#TODO: sort to get the bowers in here
+
+			print("DEBUG: sorted_possibles: ", sorted_possibles)
+			# anything with a smaller index than the lead card will work
+			#k = sorted_possibles.index(lead)
+			#if k:
+			#	for n in range(k,len(sorted_possibles)):
+			#		sorted_possibles.pop(k)
+
+			card_to_play = sorted_possibles[0]
+
+		return card_to_play
+
+	def lowest_of_suit(self,suit):
+		card_to_play = None
+		if suit == self.game._trump:
+			leftbower = 'J' + utils.same_color(suit);
+		else:
+			leftbower = None
+
+		# get list of cards in had of the same suit (including left bower if suit is trump)
+		possibles = self.game.hand_for(self).copy()
+		for card in possibles:
+			if card[1] != suit and card != leftbower:
+				possibles.remove(card);
+
+		# sort lowest to highest
+		if (len(possibles) > 0):
+			card_order = [ 'J', 'A', 'K', 'Q', 'T', '9' ]
+			#suit_order = [ self.game._trump, utils.same_color(self.game._trump) ]
+			sorted_possibles = sorted(possibles, key=lambda c: (card_order.index(c[0])), reverse=True)
+			#TODO: sort to get the bowers in here
+
+			card_to_play = sorted_possibles[0]
+
+		return card_to_play
+
+	def lowest_overall(self):
+		card_to_play = None
+		possibles = self.game.hand_for(self).copy()
+
+		# sort lowest to highest
+		if (len(possibles) > 0):
+			card_order = [ 'J', 'A', 'K', 'Q', 'T', '9' ]
+			sorted_possibles = sorted(possibles, key=lambda c: (card_order.index(c[0])), reverse=True)
+
+			card_to_play = sorted_possibles[0]
+
+		return card_to_play
