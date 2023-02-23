@@ -1,4 +1,5 @@
 from random import shuffle, randrange
+from functools import reduce
 import utils
 
 SUITS = ['s', 'h', 'd', 'c']
