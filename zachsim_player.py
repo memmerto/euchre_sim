@@ -28,7 +28,7 @@ class ZachSimPlayer(Player):
 
 			# follow suit: throw low
 			if not card_to_play:
-				card_to_play = self.lowest_of_suit(trick[0])
+				card_to_play = self.lowest_of_suit(trick[0][1])
 
 		# can't follow the lead
 		if not card_to_play:
@@ -108,21 +108,21 @@ class ZachSimPlayer(Player):
 			if card[1] == lead[1] or card == leftbower:
 				possibles.append(card)
 
-		# sort highest to lowest
-		# and remove anything that won't beat the lead
+		# sort highest to lowest and remove anything that won't beat the lead
 		if (len(possibles) > 0):
-			card_order = [ 'J', 'A', 'K', 'Q', 'T', '9' ]
-			#suit_order = [ self.game._trump, utils.same_color(self.game._trump) ]
-			sorted_possibles = sorted(possibles, key=lambda c: (card_order.index(c[0])))
-			#TODO: sort to get the bowers in here
+			card_order = [ 'Jx', 'Jy', 'Ax', 'Kx', 'Qx', 'Tx', '9x' ]
+			for n in range(len(card_order)):
+				card_order[n] = card_order[n].replace('x', lead[1])
+				card_order[n] = card_order[n].replace('y', utils.same_color(lead[1]))
+
+			sorted_possibles = sorted(possibles, key=lambda c: (card_order.index(c)))
 
 			# anything with a smaller index than the lead card will work
-			#k = sorted_possibles.index(lead)
-			#if k:
-			#	for n in range(k,len(sorted_possibles)):
-			#		sorted_possibles.pop(k)
-
-			card_to_play = sorted_possibles[0]
+			lead_index = card_order.index(lead)
+			for card in sorted_possibles:
+				if (card_order.index(card) < lead_index):
+					card_to_play = card
+					break
 
 		return card_to_play
 
@@ -141,10 +141,12 @@ class ZachSimPlayer(Player):
 
 		# sort lowest to highest
 		if (len(possibles) > 0):
-			card_order = [ 'J', 'A', 'K', 'Q', 'T', '9' ]
-			#suit_order = [ self.game._trump, utils.same_color(self.game._trump) ]
-			sorted_possibles = sorted(possibles, key=lambda c: (card_order.index(c[0])), reverse=True)
-			#TODO: sort to get the bowers in here
+			card_order = [ 'Jx', 'Jy', 'Ax', 'Kx', 'Qx', 'Tx', '9x' ]
+			for n in range(len(card_order)):
+				card_order[n] = card_order[n].replace('x', suit)
+				card_order[n] = card_order[n].replace('y', utils.same_color(suit))
+
+			sorted_possibles = sorted(possibles, key=lambda c: (card_order.index(c)), reverse=True)
 
 			card_to_play = sorted_possibles[0]
 
