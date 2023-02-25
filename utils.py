@@ -11,7 +11,7 @@ def best_card(cards, trump=None, lead=None):
 	val_map = {}
 	for c in cards:
 		val = VALUE_MAP[c[0]]
-		if lead == c[1]:
+		if lead == c[1] and not trump == c[1]:
 			val *= 10
 		if trump == c[1]:
 			val *= 100
