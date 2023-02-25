@@ -55,7 +55,7 @@ class ZachSimGame(Game):
 				card = p.action(trick)
 				if p not in self._inactives:
 					# must follow suit
-					if len(trick) > 0 and not utils.did_follow_suit(self._hands[p], card, self._trump, trick[0][1]):
+					if len(trick) > 0 and not utils.did_follow_suit(self._hands[p], card, self._trump, trick[0]):
 						print("DEBUG: lead card: ", trick[0], " card: ", card, "hand: ", self._hands[p])
 						raise IllegalPlayException("Must follow suit")
 					# internal logic error

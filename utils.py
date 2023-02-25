@@ -42,7 +42,7 @@ def same_color(suit):
 def follow_suit_priority(card, trump, lead):
 	""" Calculate priority order of "follow suit" rule.
 
-	Trump and lead suit must be specified.
+	Trump suit and lead card must be specified.
 
         priority order of "follow suit" rules:
 	1) must match suit of lead card
@@ -55,11 +55,16 @@ def follow_suit_priority(card, trump, lead):
 
 	leftbower = 'J' + same_color(trump)
 
+	# Determine the suit of the lead card.  This considers the left bower as trump.
+	suit_to_follow = lead[1]
+	if lead == leftbower:
+		suit_to_follow = trump
+
 	# Determine the priority of the card that was played.  Note that this
 	# is slightly different than the logic in best_card.
-	if lead == card[1]:
+	if suit_to_follow == card[1]:
 		val = 1
-	elif lead == trump and card == leftbower:
+	elif suit_to_follow == trump and card == leftbower:
 		val = 1
 	elif trump == card[1]:
 		val = 2
@@ -73,7 +78,7 @@ def follow_suit_priority(card, trump, lead):
 def did_follow_suit(cards, card, trump, lead):
 	""" Calculate if card followed suit given the cards in the hand
 
-	Trump and lead suit must be specified.
+	Trump suit and lead card must be specified.
 
 	"""
 

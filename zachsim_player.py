@@ -1,7 +1,7 @@
 import utils
 from player import Player
 
-PLAYER_DEBUG = 0
+PLAYER_DEBUG = 1
 
 class ZachSimPlayer(Player):
 
@@ -34,11 +34,11 @@ class ZachSimPlayer(Player):
 
 			# follow suit: throw low
 			if not card_to_play:
-				card_to_play = self.lowest_of_suit(trick[0][1])
+				card_to_play = self.lowest_of_suit(trick[0])
 
 			# can't follow suit: throw trump
 			if not card_to_play:
-				card_to_play = self.lowest_of_suit(self.game._trump)
+				card_to_play = self.lowest_of_suit(None)
 
 			# can't follow suit or no trump
 			if not card_to_play:
@@ -72,12 +72,9 @@ class ZachSimPlayer(Player):
 		if PLAYER_DEBUG:
 			print("DEBUG: --- highest_trump ---")
 
-		rightbower = 'J' + self.game._trump
-		leftbower = 'J' + utils.same_color(self.game._trump)
-
 		# get list of trump cards in hand
 		for card in self.game.hand_for(self):
-			if card[1] == self.game._trump or card == leftbower:
+			if card[1] == self.game._trump or card == self.game._leftbower:
 				trumps.append(card)
 
 		if PLAYER_DEBUG:
@@ -107,12 +104,9 @@ class ZachSimPlayer(Player):
 		if PLAYER_DEBUG:
 			print("DEBUG: --- highest_nontrump ---")
 
-		rightbower = 'J' + self.game._trump
-		leftbower = 'J' + utils.same_color(self.game._trump)
-
 		# get list of non-trump cards in hand
 		for card in self.game.hand_for(self):
-			if card[1] != self.game._trump and card != leftbower:
+			if card[1] != self.game._trump and card != self.game._leftbower:
 				nontrumps.append(card)
 
 		if PLAYER_DEBUG:
@@ -135,19 +129,24 @@ class ZachSimPlayer(Player):
 
 	def highest_of_suit_beats_lead(self,lead):
 		card_to_play = None
+		extra_card = None
 		possibles = []
 
 		if PLAYER_DEBUG:
 			print("DEBUG: --- highest_of_suit_beats_lead ---")
 
-		if lead[1] == self.game._trump:
-			leftbower = 'J' + utils.same_color(lead[1]);
+		# if the left bower was led, then we need to follow suit with trump
+		# otherwise just follow the suit that was led
+		if lead == self.game._leftbower:
+			suit_to_follow = self.game._trump
 		else:
-			leftbower = None
+			suit_to_follow = lead[1]
+			if suit_to_follow == self.game._trump:
+				extra_card = self.game._leftbower
 
-		# get list of cards in hand of the same suit (including left bower if suit is trump)
+		# get list of cards in hand of the same suit (including the left bower if suit is trump)
 		for card in self.game.hand_for(self):
-			if card[1] == lead[1] or card == leftbower:
+			if card[1] == suit_to_follow or card == extra_card:
 				possibles.append(card)
 
 		if PLAYER_DEBUG:
@@ -157,8 +156,12 @@ class ZachSimPlayer(Player):
 		if (len(possibles) > 0):
 			card_order = [ 'Jx', 'Jy', 'Ax', 'Kx', 'Qx', 'Tx', '9x' ]
 			for n in range(len(card_order)):
-				card_order[n] = card_order[n].replace('x', lead[1])
-				card_order[n] = card_order[n].replace('y', utils.same_color(lead[1]))
+				if lead == self.game._leftbower:
+					card_order[n] = card_order[n].replace('x', utils.same_color(lead[1]))
+					card_order[n] = card_order[n].replace('y', lead[1])
+				else:
+					card_order[n] = card_order[n].replace('x', lead[1])
+					card_order[n] = card_order[n].replace('y', utils.same_color(lead[1]))
 
 			sorted_possibles = sorted(possibles, key=lambda c: (card_order.index(c)))
 
@@ -177,21 +180,26 @@ class ZachSimPlayer(Player):
 
 		return card_to_play
 
-	def lowest_of_suit(self,suit):
+	def lowest_of_suit(self,lead):
 		card_to_play = None
 		possibles = []
 
 		if PLAYER_DEBUG:
 			print("DEBUG: --- lowest_of_suit ---")
 
-		if suit == self.game._trump:
-			leftbower = 'J' + utils.same_color(suit);
+		# if lead not given, use trump
+		if lead == None or lead == self.game._leftbower:
+			suit = self.game._trump
 		else:
-			leftbower = None
+			suit = lead[1]
+
+		if PLAYER_DEBUG:
+			print("DEBUG: lead: ", lead)
+			print("DEBUG: suit: ", suit)
 
 		# get list of cards in hand of the same suit (including left bower if suit is trump)
 		for card in self.game.hand_for(self):
-			if card[1] == suit or card == leftbower:
+			if card[1] == suit or (suit == self.game._trump and card == self.game._leftbower):
 				possibles.append(card);
 
 		if PLAYER_DEBUG:
