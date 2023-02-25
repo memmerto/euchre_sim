@@ -57,6 +57,7 @@ class ZachSimGame(Game):
 			winning_card = utils.best_card(trick, self._trump, trick[0][1])
 			winning_player = self._players[trick.index(winning_card)]
 			self._tricks_score[self._teams[winning_player]] += 1
+			self._rotate_until(winning_player)
 			print(winning_player.name, winning_card, trick)
 
 		# score
