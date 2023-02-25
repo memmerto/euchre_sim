@@ -37,6 +37,7 @@ class Game:
 		self.__deck = None
 		self._top_card = None
 		self._trump = None
+		self._leftbower = None
 		self._caller = None
 		self._dealer = None
 
@@ -133,6 +134,7 @@ class Game:
 				self._hands[self._dealer].remove(discard) # Game
 				
 				self._trump = self._top_card[1]
+				self._leftbower = utils.same_color(self._trump)
 
 				if call_result == "alone":
 					self._inactives.append(self._teammate_for(p))
@@ -156,6 +158,7 @@ class Game:
 				raise IllegalPlayException("Can't call the face up card after it's flipped")
 			if call_result in SUITS:
 				self._trump = call_result
+				self._leftbower = utils.same_color(self._trump)
 
 				# tell players and game who called
 				self._caller = p

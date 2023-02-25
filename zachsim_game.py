@@ -78,6 +78,7 @@ class ZachSimGame(Game):
 
 		# reset
 		self._trump = None
+		self._leftbower = None
 		self._top_card = None
 		self._inactives = []
 		for team_num in range(1, 3):
@@ -141,6 +142,9 @@ class ZachSimGame(Game):
 		# dealer always chooses trump to be hearts
 		self._trump = 'h'
 		self._caller = self._players[3]
+
+		# set up left bower
+		self._leftbower = 'J' + utils.same_color(self._trump)
 
 class IllegalPlayException(Exception):
         pass
