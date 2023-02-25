@@ -45,11 +45,9 @@ class ZachSimGame(Game):
 				card = p.action(trick)
 				if p not in self._inactives:
 					# must follow suit
-					if len(trick) > 0 and p.has_suit(trick[0][1]) and card[1] != trick[0][1]:
+					if len(trick) > 0 and not utils.did_follow_suit(self._hands[p], card, self._trump, trick[0][1]):
 						print("DEBUG: lead card: ", trick[0], " card: ", card, "hand: ", self._hands[p])
-						raise IllegalPlayException("Must play the lead suit if you've got it")
-					# must follow suit (left bower rule)
-					# TODO
+						raise IllegalPlayException("Must follow suit")
 					# internal logic error
 					if card not in self._hands[p]:
 						raise IllegalPlayException("Player doesn't have that card to play")
@@ -129,3 +127,6 @@ class ZachSimGame(Game):
 		# dealer always chooses trump to be hearts
 		self._trump = 'h'
 		self._caller = self._players[3]
+
+class IllegalPlayException(Exception):
+        pass

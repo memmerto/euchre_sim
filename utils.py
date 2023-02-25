@@ -39,10 +39,73 @@ def same_color(suit):
 	elif suit == 'h':
 		return 'd'
 
+def follow_suit_priority(card, trump, lead):
+	""" Calculate priority order of "follow suit" rule.
+
+	Trump and lead suit must be specified.
+
+        priority order of "follow suit" rules:
+	1) must match suit of lead card
+	   - if suit of lead card is trump, then either trump or left bower is acceptable
+	2) must match suit of trump
+	   - if suit of lead card is trump, then either trump or left bower is acceptable
+	3) anything else
+
+	"""
+
+	leftbower = 'J' + same_color(trump)
+
+	# Determine the priority of the card that was played.  Note that this
+	# is slightly different than the logic in best_card.
+	if lead == card[1]:
+		val = 1
+	elif lead == trump and card == leftbower:
+		val = 1
+	elif trump == card[1]:
+		val = 2
+	elif trump == card[1] and card == leftbower:
+		val = 2
+	else:
+		val = 3
+
+	return val
+
+def did_follow_suit(cards, card, trump, lead):
+	""" Calculate if card followed suit given the cards in the hand
+
+	Trump and lead suit must be specified.
+
+	"""
+
+	# Determine the priority of the card played
+	card_pri = follow_suit_priority(card, trump, lead)
+
+	# Determine the priorities of all other cards in the hand
+	cards_pri = {}
+	for c in cards:
+		cards_pri[c] = follow_suit_priority(c, trump, lead)
+
+	best_pri = sorted(cards_pri.items(), key=lambda x: x[1])[0][1]
+
+	# If the card played has the same priority as the best priority,
+	# then the follow suit rules were followed.  (Otherwise, there
+	# was a card that had higher priority ==> should have been played.)
+	if card_pri == best_pri:
+		return True
+
+	return False
+
 # Should be unit tests
-# print best_card(['Qs', 'As'])
-# print best_card(['As', 'Jh'], 'h')
-# print best_card(['Jc', 'Js'], 'h', 's')
-# print best_card(['Jc', 'Js', 'Jh'], 'h', 's')
-# print best_card(['Jc', 'Js', 'Jh', 'Jd'], 'h', 's')
-# print best_card(['Jc', 'Js', 'Ah', 'Jd'], 'h', 's')
+# print best_card(['Qs', 'As'])                        # As
+# print best_card(['As', 'Jh'], 'h')                   # Jh
+# print best_card(['Jc', 'Js'], 'h', 's')              # Js
+# print best_card(['Jc', 'Js', 'Jh'], 'h', 's')        # Js
+# print best_card(['Jc', 'Js', 'Jh', 'Jd'], 'h', 's')  # Js
+# print best_card(['Jc', 'Js', 'Ah', 'Jd'], 'h', 's')  # Js
+
+# print did_follow_suit(['Jc', 'Js', Kc'], 'Jc', 's', 's') # false, 'Js'
+# print did_follow_suit(['Jc', 'As', Kc'], 'Jc', 's', 's') # false, 'Jc'
+# print did_follow_suit(['Jc', 'Js', Kc'], 'Jc', 's', 'c') # true, 'Jc'
+# print did_follow_suit(['Jc', 'As', Kc'], 'Jc', 's', 'c') # true, 'Jc'
+# print did_follow_suit(['Td', '9s', 'Ts', '9c', 'Ah'], 'Ah', 'h', 'h') # true, 'Ah'
+
