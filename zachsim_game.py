@@ -6,7 +6,7 @@ import utils
 SUITS = ['s', 'h', 'd', 'c']
 VALUES = ['9','T','J','Q','K','A']
 
-MAX_SCORE = 10
+MAX_SCORE = 100
 
 class ZachSimGame(Game):
 
@@ -36,12 +36,22 @@ class ZachSimGame(Game):
 		print("====================")
 		self.print_hand()
 
+		# play starts with the "first" player in order
+		leader = 0
+
+		# number of players
+		numplayers = len(self._players)
+
 		# play tricks
 		print("Tricks:")
 		for _ in range(5):
+			# cards played in order from [leader..leader+numplayers-1]%numplayers
 			trick = []
 
-			for p in self._players:
+			# loop through players, starting with the leader
+			for n in range(numplayers):
+				p = self._players[(leader+n)%numplayers]
+
 				card = p.action(trick)
 				if p not in self._inactives:
 					# must follow suit
@@ -55,10 +65,13 @@ class ZachSimGame(Game):
 					self._hands[p].remove(card) # Game
 
 			winning_card = utils.best_card(trick, self._trump, trick[0][1])
-			winning_player = self._players[trick.index(winning_card)]
+			winning_player_index = (trick.index(winning_card) + leader) % numplayers
+			winning_player = self._players[winning_player_index]
 			self._tricks_score[self._teams[winning_player]] += 1
-			self._rotate_until(winning_player)
 			print(winning_player.name, winning_card, trick)
+
+			# move leader to winning player
+			leader = winning_player_index
 
 		# score
 		self.score_hand()
