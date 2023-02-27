@@ -1,24 +1,39 @@
 VALUE_MAP = {'9': 1, 'T': 2, 'J': 3, 'Q': 4, 'K': 5, 'A': 6}
 
+# Jd beats Jh with h trump and Jd lead.
 def best_card(cards, trump=None, lead=None):
 	""" Calculate winning card from list of cards
 
-	Trump and lead suit must be specified, otherwise normal order is assumed.
-
-	I am displeased with the lack of elegance in this function.
+	Trump suit and lead card must be specified, otherwise normal order is assumed.
 
 	"""
 	val_map = {}
+	leftbower = 'J' + same_color(trump)
+
+	# determine suit to follow
+	suit_to_follow = lead[1]
+	if lead == leftbower:
+		suit_to_follow = trump
+
 	for c in cards:
+		# standard value
 		val = VALUE_MAP[c[0]]
-		if lead == c[1] and not trump == c[1]:
-			val *= 10
-		if trump == c[1]:
+
+		# right bower
+		if c[0] == 'J' and c[1] == trump:
+			val *= 1000 + 5
+
+		# left bower
+		elif c[0] == 'J' and c[1] == same_color(trump):
+			val *= 1000 + 3
+
+		# any other trump
+		elif c[1] == trump:
 			val *= 100
-			if c[0] == 'J':
-				val = val*10 + 5
-		if trump == same_color(c[1]) and c[0] == 'J':
-			val = val*1000 + 3
+
+		# any non-trump that followed the lead suit
+		elif suit_to_follow == c[1]:
+			val *= 10
 
 		val_map[c] = val
 

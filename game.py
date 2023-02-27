@@ -81,7 +81,7 @@ class Game:
 					trick.append(card)
 					self._hands[p].remove(card) # Game
 
-			winning_card = utils.best_card(trick, self._trump, trick[0][1])
+			winning_card = utils.best_card(trick, self._trump, trick[0])
 			winning_player = self._players[trick.index(winning_card)]
 			self._tricks_score[self._teams[winning_player]] += 1
 			self._rotate_until(winning_player)
