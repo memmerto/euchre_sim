@@ -1,7 +1,7 @@
 import utils
 from player import Player
 
-PLAYER_DEBUG = 1
+PLAYER_DEBUG = 0
 
 class ZachSimPlayer(Player):
 
